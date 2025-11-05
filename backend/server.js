@@ -7,11 +7,12 @@ app.use(cors());
 app.use(express.json());
 
 // MySQL connection setup
+
 const db = mysql.createConnection({
-    host: "localhost", // or "mysql" when using Docker Compose
-    user: "root",
-    password: "rootpassword",
-    database: "accountsdb",
+    host: process.env.DB_HOST || "db",   // ✅ not localhost
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "rootpassword",
+    database: process.env.DB_NAME || "accountsdb",
 });
 
 db.connect((err) => {
