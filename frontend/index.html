@@ -35,15 +35,15 @@
                 <div class="welcome-card">
                     <h2>Welcome to Account Manager Pro!</h2>
                     <p>Use the navigation above to securely manage your deposits and withdrawals.</p>
-                    <p>Your current balance is $1,250.00.</p>
+                    <p>Go to the **History** tab to see all recorded transactions.</p>
                 </div>
             </div>
 
             <div id="deposit-section" class="view-section">
                 <form id="addForm" class="form-card">
                     <h2>Deposit Money</h2>
-                    <input type="text" id="addAccountId" placeholder="Account ID" required />
-                    <input type="number" id="addAmount" placeholder="Amount to Deposit" required />
+                    <input type="text" id="addAccountId" placeholder="Account ID (e.g., 1001)" required />
+                    <input type="number" id="addAmount" placeholder="Amount to Deposit" required min="1" />
                     <button type="submit" class="btn-deposit">Deposit Funds</button>
                 </form>
             </div>
@@ -51,8 +51,8 @@
             <div id="withdraw-section" class="view-section">
                 <form id="withdrawForm" class="form-card">
                     <h2>Withdraw Funds</h2>
-                    <input type="text" id="withdrawAccountId" placeholder="Account ID" required />
-                    <input type="number" id="withdrawAmount" placeholder="Amount to Withdraw" required />
+                    <input type="text" id="withdrawAccountId" placeholder="Account ID (e.g., 1001)" required />
+                    <input type="number" id="withdrawAmount" placeholder="Amount to Withdraw" required min="1" />
                     <button type="submit" class="btn-withdraw">Withdraw Money</button>
                 </form>
             </div>
@@ -60,7 +60,9 @@
             <div id="history-section" class="view-section">
                 <div class="simple-card">
                     <h2>Transaction History</h2>
-                    <p>History log coming soon!</p>
+                    <div id="history-content">
+                        <p>Loading transactions...</p>
+                    </div>
                 </div>
             </div>
 

@@ -1,3 +1,5 @@
+/* ... (Use the complete style.css content from the previous step) ... */
+
 /* ==================================== */
 /* 1. CSS Variables and Global Reset */
 /* ==================================== */
@@ -221,6 +223,38 @@ button:active {
     /* JS controls visibility */
 }
 
+/* History table styling */
+#history-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 0.95rem;
+}
+
+#history-content th,
+#history-content td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#history-content th {
+    background-color: var(--bg-light);
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.deposit {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+.withdraw {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+
 /* ==================================== */
 /* 4. Responsive Design */
 /* ==================================== */
@@ -241,6 +275,11 @@ button:active {
         /* Limit max width for a cleaner, more focused view */
         max-width: 450px;
         margin: 0 auto;
+    }
+
+    /* Allow the History view to be wider since it contains a table */
+    #history-section {
+        max-width: 800px;
     }
 }
 
@@ -278,5 +317,31 @@ button:active {
     .menu-toggle {
         display: block;
         /* Show hamburger icon on mobile */
+    }
+
+    /* Simplify history table on mobile */
+    #history-content thead {
+        display: none;
+    }
+
+    #history-content tr {
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 10px;
+    }
+
+    #history-content td {
+        display: block;
+        text-align: right;
+        border: none;
+    }
+
+    #history-content td::before {
+        content: attr(data-label);
+        float: left;
+        font-weight: bold;
+        color: var(--text-color);
     }
 }

@@ -1,65 +1,171 @@
 const express = require("express");
 const cors = require("cors");
+const mysql = require("mysql2");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Dummy in-memory accounts for now
-let accounts = {
-    1: { balance: 1000 },
-    2: { balance: 500 },
-};
+// MySQL connection setup
+const db = mysql.createConnection({
+    host: "localhost", // or "mysql" when using Docker Compose
+    user: "root",
+    password: "rootpassword",
+    database: "accountsdb",
+});
 
-// Add Money Endpoint
+db.connect((err) => {
+    if (err) {
+        console.error("❌ Database connection failed:", err);
+    } else {
+        console.log("✅ Connected to MySQL database!");
+    }
+});
+
+// --------------------- ROUTES ----------------------
+
+// 🟢 Add Money
 app.post("/add-money", (req, res) => {
     const { accountId, amount } = req.body;
+
     if (!accountId || !amount) {
-        return res.status(400).json({ success: false, message: "Missing fields" });
+        return res
+            .status(400)
+            .json({ success: false, message: "Missing accountId or amount" });
     }
 
-    if (!accounts[accountId]) {
-        // If account doesn't exist, create it
-        accounts[accountId] = { balance: 0 };
-    }
+    // Update balance
+    const updateQuery = `UPDATE accounts SET balance = balance + ? WHERE account_id = ?`;
+    db.query(updateQuery, [amount, accountId], (err, result) => {
+        if (err) {
+            console.error("❌ Error updating balance:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
 
-    accounts[accountId].balance += Number(amount);
-    console.log(`Account ${accountId} new balance: ${accounts[accountId].balance}`);
+        if (result.affectedRows === 0) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Account not found" });
+        }
 
-    res.json({
-        success: true,
-        message: `Added ₹${amount} to account ${accountId}. New balance: ₹${accounts[accountId].balance}`,
+        // Insert into transactions
+        const insertTransaction =
+            "INSERT INTO transactions (account_id, type, amount) VALUES (?, 'deposit', ?)";
+        db.query(insertTransaction, [accountId, amount], (err2) => {
+            if (err2) {
+                console.error("❌ Error inserting transaction:", err2);
+            }
+        });
+
+        // Fetch updated balance to show to user
+        const balanceQuery = "SELECT balance FROM accounts WHERE account_id = ?";
+        db.query(balanceQuery, [accountId], (err3, results) => {
+            if (err3 || results.length === 0)
+                return res.json({
+                    success: true,
+                    message: `Added ₹${amount} successfully.`,
+                });
+
+            res.json({
+                success: true,
+                message: `Added ₹${amount} to account ${accountId}. New balance: ₹${results[0].balance}`,
+            });
+        });
     });
 });
 
-// Withdraw Money Endpoint
+// 🔴 Withdraw Money
 app.post("/withdraw-money", (req, res) => {
     const { accountId, amount } = req.body;
+
     if (!accountId || !amount) {
-        return res.status(400).json({ success: false, message: "Missing fields" });
+        return res
+            .status(400)
+            .json({ success: false, message: "Missing accountId or amount" });
     }
 
-    const account = accounts[accountId];
-    if (!account) {
-        return res.status(404).json({ success: false, message: "Account not found" });
-    }
+    // Check balance first
+    const checkBalanceQuery = "SELECT balance FROM accounts WHERE account_id = ?";
+    db.query(checkBalanceQuery, [accountId], (err, results) => {
+        if (err) {
+            console.error("❌ Error fetching balance:", err);
+            return res.status(500).json({ success: false, message: "Database error" });
+        }
 
-    if (account.balance < amount) {
-        return res.status(400).json({ success: false, message: "Insufficient funds" });
-    }
+        if (results.length === 0) {
+            return res
+                .status(404)
+                .json({ success: false, message: "Account not found" });
+        }
 
-    account.balance -= Number(amount);
-    console.log(`Account ${accountId} new balance: ${account.balance}`);
+        const currentBalance = parseFloat(results[0].balance);
+        if (currentBalance < amount) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Insufficient funds" });
+        }
 
-    res.json({
-        success: true,
-        message: `Withdrew ₹${amount} from account ${accountId}. New balance: ₹${account.balance}`,
+        // Deduct balance
+        const withdrawQuery = `UPDATE accounts SET balance = balance - ? WHERE account_id = ?`;
+        db.query(withdrawQuery, [amount, accountId], (err2, result) => {
+            if (err2) {
+                console.error("❌ Error updating balance:", err2);
+                return res.status(500).json({ success: false, message: "Database error" });
+            }
+
+            // Insert into transactions
+            const insertTransaction =
+                "INSERT INTO transactions (account_id, type, amount) VALUES (?, 'withdraw', ?)";
+            db.query(insertTransaction, [accountId, amount], (err3) => {
+                if (err3) {
+                    console.error("❌ Error inserting transaction:", err3);
+                }
+            });
+
+            // Fetch updated balance
+            const balanceQuery = "SELECT balance FROM accounts WHERE account_id = ?";
+            db.query(balanceQuery, [accountId], (err4, results2) => {
+                if (err4 || results2.length === 0)
+                    return res.json({
+                        success: true,
+                        message: `Withdrew ₹${amount} successfully.`,
+                    });
+
+                res.json({
+                    success: true,
+                    message: `Withdrew ₹${amount} from account ${accountId}. New balance: ₹${results2[0].balance}`,
+                });
+            });
+        });
     });
 });
 
-// Just for quick testing
+// 🧾 Get All Accounts
+app.get("/accounts", (req, res) => {
+    db.query("SELECT * FROM accounts", (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+});
+
+// 🧾 Get Transaction History (optional)
+app.get("/transactions", (req, res) => {
+    db.query(
+        "SELECT * FROM transactions ORDER BY created_at DESC",
+        (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: err.message });
+            }
+            res.json(results);
+        }
+    );
+});
+
+// Test route
 app.get("/", (req, res) => {
-    res.send("Backend is running!");
+    res.send("Backend API is running 🚀");
 });
 
 const PORT = 5000;
