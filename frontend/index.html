@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Manager Pro</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <a href="#welcome-section" id="homeLink">Account Manager Pro</a>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#deposit-section" class="nav-link">Deposit</a></li>
+                <li><a href="#withdraw-section" class="nav-link">Withdraw</a></li>
+                <li><a href="#history-section" class="nav-link">History</a></li>
+                <li><a href="#settings-section" class="nav-link">Settings</a></li>
+            </ul>
+        </nav>
+        <div class="menu-toggle" id="menuToggle">
+            &#9776; </div>
+    </header>
+
+    <main class="content-wrapper">
+        <h1 class="main-heading">Financial Transaction Dashboard</h1>
+
+        <div class="container">
+
+            <div id="welcome-section" class="view-section active-view">
+                <div class="welcome-card">
+                    <h2>Welcome to Account Manager Pro!</h2>
+                    <p>Use the navigation above to securely manage your deposits and withdrawals.</p>
+                    <p>Your current balance is $1,250.00.</p>
+                </div>
+            </div>
+
+            <div id="deposit-section" class="view-section">
+                <form id="addForm" class="form-card">
+                    <h2>Deposit Money</h2>
+                    <input type="text" id="addAccountId" placeholder="Account ID" required />
+                    <input type="number" id="addAmount" placeholder="Amount to Deposit" required />
+                    <button type="submit" class="btn-deposit">Deposit Funds</button>
+                </form>
+            </div>
+
+            <div id="withdraw-section" class="view-section">
+                <form id="withdrawForm" class="form-card">
+                    <h2>Withdraw Funds</h2>
+                    <input type="text" id="withdrawAccountId" placeholder="Account ID" required />
+                    <input type="number" id="withdrawAmount" placeholder="Amount to Withdraw" required />
+                    <button type="submit" class="btn-withdraw">Withdraw Money</button>
+                </form>
+            </div>
+
+            <div id="history-section" class="view-section">
+                <div class="simple-card">
+                    <h2>Transaction History</h2>
+                    <p>History log coming soon!</p>
+                </div>
+            </div>
+
+            <div id="settings-section" class="view-section">
+                <div class="simple-card">
+                    <h2>Account Settings</h2>
+                    <p>Settings panel coming soon!</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div id="response" class="response"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
