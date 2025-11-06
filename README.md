@@ -4,6 +4,10 @@ This is a basic 3-tier Banking Application with an HTML frontend, Express backen
 
 ---
 
+## Demo
+https://github.com/user-attachments/assets/ba4dfe0b-36a8-4282-849a-901632093a73
+
+
 ## Running the Application
 
 ### Step 1: Clone the GitHub Repository
